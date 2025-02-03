@@ -1,20 +1,31 @@
 document.addEventListener("DOMContentLoaded", loadExpenses);
 document.getElementById("expense-form").addEventListener("submit", addExpense);
 
-function addExpense(e) {
+async function addExpense(e) {
     e.preventDefault();
 
     const description = document.getElementById("description").value;
     const amount = parseFloat(document.getElementById("amount").value);
-    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
 
     if (description && amount) {
-        const expense = { id: Date.now(), description, amount };
-        expenses.push(expense);
-        localStorage.setItem("expenses", JSON.stringify(expenses));
-        appendExpenseToList(expense);
+        try {
+            const response = await axios.post("http://localhost:3000/api/postExpense", { description, amount });
+            appendExpenseToList(response.data);
+            updateTotal();
+            document.getElementById("expense-form").reset();
+        } catch (error) {
+            console.error("Error adding expense:", error);
+        }
+    }
+}
+
+async function loadExpenses() {
+    try {
+        const response = await axios.get("http://localhost:3000/api/getExpense");
+        response.data.forEach(expense => appendExpenseToList(expense));
         updateTotal();
-        document.getElementById("expense-form").reset();
+    } catch (error) {
+        console.error("Error loading expenses:", error);
     }
 }
 
@@ -32,44 +43,32 @@ function appendExpenseToList(expense) {
     `;
     expenseList.appendChild(li);
 
-    li.querySelector(".edit-expense").addEventListener("click", () => editExpense(expense.id));
+    li.querySelector(".edit-expense").addEventListener("click", () => editExpense(expense));
     li.querySelector(".remove-expense").addEventListener("click", () => removeExpense(expense.id));
 }
 
-function saveExpense(expense) {
-    let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-    expenses.push(expense);
-    localStorage.setItem("expenses", JSON.stringify(expenses));
+async function removeExpense(id) {
+    try {
+        await axios.delete(`http://localhost:3000/api/deleteExpense?id=${id}`);
+        document.querySelector(`[data-id='${id}']`).remove();
+        updateTotal();
+    } catch (error) {
+        console.error("Error deleting expense:", error);
+    }
 }
 
-function loadExpenses() {
-    let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-    expenses.forEach(expense => appendExpenseToList(expense));
-    updateTotal();
+function editExpense(expense) {
+    document.getElementById("description").value = expense.description;
+    document.getElementById("amount").value = expense.amount;
+    removeExpense(expense.id);
 }
 
-function updateTotal() {
-    let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-    let total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-    document.getElementById("total-amount").textContent = `${total.toFixed(2)}`;
-}
-
-function removeExpense(id) {
-    let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-    expenses = expenses.filter(expense => expense.id !== id);
-    localStorage.setItem("expenses", JSON.stringify(expenses));
-    document.querySelector(`[data-id='${id}']`).remove();
-    updateTotal();
-}
-
-function editExpense(id) {
-    let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-    const expense = expenses.find(expense => expense.id === id);
-
-    if (expense) {
-        document.getElementById("description").value = expense.description;
-        document.getElementById("amount").value = expense.amount;
-
-        removeExpense(id); 
+async function updateTotal() {
+    try {
+        const response = await axios.get("http://localhost:3000/api/getExpense");
+        const total = response.data.reduce((sum, expense) => sum + expense.amount, 0);
+        document.getElementById("total-amount").textContent = `${total.toFixed(2)}`;
+    } catch (error) {
+        console.error("Error updating total:", error);
     }
 }
