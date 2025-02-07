@@ -1,74 +1,81 @@
-document.addEventListener("DOMContentLoaded", loadExpenses);
-document.getElementById("expense-form").addEventListener("submit", addExpense);
+document.addEventListener("DOMContentLoaded", initApp);
 
-async function addExpense(e) {
-    e.preventDefault();
-
-    const description = document.getElementById("description").value;
-    const amount = parseFloat(document.getElementById("amount").value);
-
-    if (description && amount) {
-        try {
-            const response = await axios.post("http://localhost:3000/api/postExpense", { description, amount });
-            appendExpenseToList(response.data);
-            updateTotal();
-            document.getElementById("expense-form").reset();
-        } catch (error) {
-            console.error("Error adding expense:", error);
-        }
-    }
+async function initApp() {
+    await fetchData();
+    document.getElementById("myForm").addEventListener("submit", handleSubmit);
+    document.getElementById("detailsList").addEventListener("click", handleListActions);
 }
 
-async function loadExpenses() {
+async function fetchData() {
     try {
         const response = await axios.get("http://localhost:3000/api/getExpense");
-        response.data.forEach(expense => appendExpenseToList(expense));
-        updateTotal();
+        console.log(response);
+        response.data.forEach(({ id, description, amount }) => addToList(id, description, amount));
     } catch (error) {
-        console.error("Error loading expenses:", error);
+        console.error("Error fetching data:", error);
     }
 }
 
-function appendExpenseToList(expense) {
-    const expenseList = document.getElementById("expense-list");
+async function handleSubmit(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const description = form.description.value.trim();
+    const amount = form.amount.value.trim();
+
+
+    if (!description || !amount) return alert("Please fill in all fields.");
+
+    try {
+        const response = await axios.post("http://localhost:3000/api/postExpense", { description, amount });
+        addToList(response.data.id, description, amount);
+        form.reset();
+    } catch (error) {
+        console.error("Error posting data:", error);
+    }
+}
+
+function addToList(id, description, amount) {
+    if (document.querySelector(`li[data-id='${id}']`)) return;
+
     const li = document.createElement("li");
-    li.className = "list-group-item d-flex justify-content-between align-items-center";
-    li.dataset.id = expense.id;
+    li.dataset.id = id;
     li.innerHTML = `
-        ${expense.description}: ${expense.amount}
-        <div>
-            <button class="btn btn-sm btn-warning edit-expense">Edit</button>
-            <button class="btn btn-sm btn-danger remove-expense">Remove</button>
-        </div>
-    `;
-    expenseList.appendChild(li);
+        <span>${id} - ${description} - ${amount}</span>
+        <button class="edit">Edit</button>
+        <button class="delete">Delete</button>`;
 
-    li.querySelector(".edit-expense").addEventListener("click", () => editExpense(expense));
-    li.querySelector(".remove-expense").addEventListener("click", () => removeExpense(expense.id));
+    document.getElementById("detailsList").appendChild(li);
 }
 
-async function removeExpense(id) {
-    try {
-        await axios.delete(`http://localhost:3000/api/deleteExpense?id=${id}`);
-        document.querySelector(`[data-id='${id}']`).remove();
-        updateTotal();
-    } catch (error) {
-        console.error("Error deleting expense:", error);
+async function handleListActions(event) {
+    const btn = event.target;
+    const li = btn.closest("li");
+    const id = li?.dataset.id;
+
+    if (!id) return;
+
+    if (btn.classList.contains("delete")) {
+        await deleteInfo(id);
+        li.remove();
+    } else if (btn.classList.contains("edit")) {
+        editItem(li);
     }
 }
 
-function editExpense(expense) {
-    document.getElementById("description").value = expense.description;
-    document.getElementById("amount").value = expense.amount;
-    removeExpense(expense.id);
+async function deleteInfo(id) {
+    try {
+        await axios.delete(`http://localhost:3000/api/deleteExpense/${id}`);
+    } catch (error) {
+        console.error("Error deleting item:", error);
+    }
 }
 
-async function updateTotal() {
-    try {
-        const response = await axios.get("http://localhost:3000/api/getExpense");
-        const total = response.data.reduce((sum, expense) => sum + expense.amount, 0);
-        document.getElementById("total-amount").textContent = `${total.toFixed(2)}`;
-    } catch (error) {
-        console.error("Error updating total:", error);
-    }
+function editItem(li) {
+    const [id, description, amount] = li.querySelector("span").textContent.split(" - ");
+    const form = document.getElementById("myForm");
+
+    form.description.value = description;
+    form.amount.value = amount;
+    li.remove();
 }
