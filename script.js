@@ -12,7 +12,9 @@ async function initApp() {
 async function fetchData() {
     try {
         const response = await axios.get("http://localhost:3000/api/getExpense");
+        document.getElementById("detailsList").innerHTML = ""; // Clear existing list
         response.data.forEach(({ id, description, amount }) => addToList(id, description, amount));
+        updateTotalAmount(); // Update total amount
     } catch (error) {
         console.error("Error fetching data:", error);
     }
@@ -23,14 +25,13 @@ async function handleSubmit(event) {
 
     const form = event.target;
     const description = form.description.value.trim();
-    const amount = form.amount.value.trim();
+    const amount = parseFloat(form.amount.value.trim());
 
-    if (!description || !amount) return alert("Please fill in all fields.");
+    if (!description || isNaN(amount) || amount <= 0) return alert("Please enter a valid description and amount.");
 
     try {
         if (editMode) {
             await axios.put(`http://localhost:3000/api/editExpense/${editId}`, { description, amount });
-            // document.querySelector(`li[data-id='${editId}']`).remove();
             addToList(editId, description, amount);
             editMode = false;
             editId = null;
@@ -40,6 +41,7 @@ async function handleSubmit(event) {
         }
 
         form.reset();
+        updateTotalAmount(); // Update total amount
     } catch (error) {
         console.error("Error submitting data:", error);
     }
@@ -51,11 +53,12 @@ function addToList(id, description, amount) {
     const li = document.createElement("li");
     li.dataset.id = id;
     li.innerHTML = `
-        <span>${id} - ${description} - ${amount}</span>
+        <span>${id} - ${description} - ₹${amount}</span>
         <button class="edit">Edit</button>
         <button class="delete">Delete</button>`;
 
     document.getElementById("detailsList").appendChild(li);
+    updateTotalAmount(); // Update total amount
 }
 
 async function handleListActions(event) {
@@ -68,6 +71,7 @@ async function handleListActions(event) {
     if (btn.classList.contains("delete")) {
         await deleteInfo(id);
         li.remove();
+        updateTotalAmount(); // Update total amount
     } else if (btn.classList.contains("edit")) {
         editItem(li);
     }
@@ -86,8 +90,19 @@ function editItem(li) {
     const form = document.getElementById("myForm");
 
     form.description.value = description;
-    form.amount.value = amount;
+    form.amount.value = amount.replace("₹", ""); // Remove ₹ symbol
     editMode = true;
     editId = id;
     li.remove();
+    updateTotalAmount(); // Update total amount
+}
+
+function updateTotalAmount() {
+    let total = 0;
+    document.querySelectorAll("#detailsList li").forEach(li => {
+        const amountText = li.querySelector("span").textContent.split(" - ")[2];
+        const amount = parseFloat(amountText.replace("₹", "").trim());
+        if (!isNaN(amount)) total += amount;
+    });
+    document.getElementById("totalAmountHeader").textContent = `Total Amount: ₹${total}`;
 }

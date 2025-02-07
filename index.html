@@ -5,13 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form with Edit & Delete</title>
-    <!-- <link rel="stylesheet" href="styles.css"> -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 
 <body>
     <div class="container">
-        <h2>Expence Tracker</h2>
+        <h2>Expense Tracker</h2>
         <form id="myForm">
             <label for="description">Description :</label>
             <input type="text" id="description" placeholder="Enter your description" required>
@@ -21,6 +20,9 @@
 
             <button type="submit">Submit</button>
         </form>
+
+        <h3 id="totalAmountHeader">Total Amount: ₹0</h3> <!-- Added total amount header -->
+
         <h3>Submitted Details</h3>
         <ul id="detailsList"></ul>
     </div>
