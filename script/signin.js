@@ -11,6 +11,9 @@ async function signin() {
         email: currEmail,
         password: currPassword
     });
-    console.log(response.data.message);
+    alert(response.data.message);
 
+    if (response.data.success) {
+        window.location.href = 'home.html';
+    }
 }

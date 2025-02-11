@@ -20,6 +20,8 @@ async function signup() {
 
         await axios.post("http://localhost:3000/api/postUser", { username, email: currEmail, password });
         alert('Signup successful!');
+        window.location.href = 'signin.html';
+
     } catch (error) {
         console.error('Error during signup:', error);
         alert('An error occurred. Please try again later.');
