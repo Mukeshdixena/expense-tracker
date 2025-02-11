@@ -4,29 +4,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form with Edit & Delete</title>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>Signup Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .signup-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        .signup-container h2 {
+            text-align: center;
+        }
+
+        .signup-container input {
+            width: 92%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .signup-container button {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .signup-container button:hover {
+            background: #0056b3;
+        }
+
+        .login-link {
+            margin-top: 10px;
+            display: block;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container">
-        <h2>Expense Tracker</h2>
-        <form id="myForm">
-            <label for="description">Description :</label>
-            <input type="text" id="description" placeholder="Enter your description" required>
-
-            <label for="amount">Amount:</label>
-            <input type="number" id="amount" placeholder="Enter your amount" required>
-
-            <button type="submit">Submit</button>
-        </form>
-
-        <h3 id="totalAmountHeader">Total Amount: ₹0</h3> <!-- Added total amount header -->
-
-        <h3>Submitted Details</h3>
-        <ul id="detailsList"></ul>
+    <div class="signup-container">
+        <h2>Signup</h2>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button onclick="signup()">Signup</button>
+        <a href="#" class="login-link">Already have an account? Login</a>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        function signup() {
+            let username = document.getElementById('username').value;
+            let email = document.getElementById('email').value;
+            let password = document.getElementById('password').value;
+
+            if (!username || !email || !password) {
+                alert('All fields are required!');
+                return;
+            }
+            alert('Signup successful!');
+        }
+    </script>
 </body>
 
 </html>
