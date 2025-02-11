@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -73,19 +74,7 @@
         <a href="#" class="login-link">Already have an account? Login</a>
     </div>
 
-    <script>
-        function signup() {
-            let username = document.getElementById('username').value;
-            let email = document.getElementById('email').value;
-            let password = document.getElementById('password').value;
-
-            if (!username || !email || !password) {
-                alert('All fields are required!');
-                return;
-            }
-            alert('Signup successful!');
-        }
-    </script>
+    <script src="script/signup.js"></script>
 </body>
 
 </html>
