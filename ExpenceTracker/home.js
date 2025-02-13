@@ -11,7 +11,8 @@ async function initApp() {
 
 async function fetchData() {
     try {
-        const response = await axios.get("http://localhost:3000/api/getExpense");
+        const token = localStorage.getItem('token');
+        const response = await axios.get("http://localhost:3000/api/getExpense", { headers: { "Authorization": token } });
         document.getElementById("detailsList").innerHTML = ""; // Clear existing list
         response.data.forEach(({ id, description, amount, category }) =>
             addToList(id, description, amount, category)
@@ -36,7 +37,7 @@ async function handleSubmit(event) {
 
     try {
         if (editMode) {
-            await axios.put(`http://localhost:3000/api/editExpense/${editId}`, { description, amount, category });
+            await axios.patch(`http://localhost:3000/api/editExpense/${editId}`, { description, amount, category });
             addToList(editId, description, amount, category);
             editMode = false;
             editId = null;

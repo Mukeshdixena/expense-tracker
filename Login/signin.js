@@ -11,9 +11,11 @@ async function signin() {
         email: currEmail,
         password: currPassword
     });
+    console.log(response);
     alert(response.data.message);
 
     if (response.data.success) {
-        window.location.href = 'home.html';
+        localStorage.setItem("token", response.data.token);
+        window.location.href = '../ExpenceTracker/home.html';
     }
 }
