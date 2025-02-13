@@ -25,7 +25,7 @@ async function fetchData() {
 
 async function handleSubmit(event) {
     event.preventDefault();
-
+    const token = localStorage.getItem('token');
     const form = event.target;
     const description = form.description.value.trim();
     const amount = parseFloat(form.amount.value.trim());
@@ -37,12 +37,17 @@ async function handleSubmit(event) {
 
     try {
         if (editMode) {
-            await axios.patch(`http://localhost:3000/api/editExpense/${editId}`, { description, amount, category });
-            addToList(editId, description, amount, category);
+            await axios.patch(`http://localhost:3000/api/editExpense/${editId}`,
+                { description, amount, category },
+                { headers: { "Authorization": token } }
+            );
             editMode = false;
             editId = null;
         } else {
-            const response = await axios.post("http://localhost:3000/api/postExpense", { description, amount, category });
+            const response = await axios.post("http://localhost:3000/api/postExpense",
+                { description, amount, category },
+                { headers: { "Authorization": token } }
+            );
             addToList(response.data.id, description, amount, category);
         }
 
@@ -59,7 +64,7 @@ function addToList(id, description, amount, category) {
     const li = document.createElement("li");
     li.dataset.id = id;
     li.innerHTML = `
-        <span>${id} - ${description} - ₹${amount} - ${category}</span>
+        <span>${description} - ₹${amount} - ${category}</span>
         <button class="edit">Edit</button>
         <button class="delete">Delete</button>`;
 
@@ -84,30 +89,30 @@ async function handleListActions(event) {
 }
 
 async function deleteInfo(id) {
+    const token = localStorage.getItem('token');
     try {
-        await axios.delete(`http://localhost:3000/api/deleteExpense/${id}`);
+        await axios.delete(`http://localhost:3000/api/deleteExpense/${id}`, { headers: { "Authorization": token } });
     } catch (error) {
         console.error("Error deleting item:", error);
     }
 }
 
 function editItem(li) {
-    const [id, description, amount, category] = li.querySelector("span").textContent.split(" - ");
+    const textParts = li.querySelector("span").textContent.split(" - ");
     const form = document.getElementById("myForm");
 
-    form.description.value = description;
-    form.amount.value = amount.replace("₹", ""); // Remove ₹ symbol
-    form.category.value = category;
+    form.description.value = textParts[0];
+    form.amount.value = textParts[1].replace("₹", ""); // Remove ₹ symbol
+    form.category.value = textParts[2];
+
     editMode = true;
-    editId = id;
-    li.remove();
-    updateTotalAmount();
+    editId = li.dataset.id;
 }
 
 function updateTotalAmount() {
     let total = 0;
     document.querySelectorAll("#detailsList li").forEach(li => {
-        const amountText = li.querySelector("span").textContent.split(" - ")[2];
+        const amountText = li.querySelector("span").textContent.split(" - ")[1];
         const amount = parseFloat(amountText.replace("₹", "").trim());
         if (!isNaN(amount)) total += amount;
     });
