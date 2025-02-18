@@ -118,3 +118,7 @@ function updateTotalAmount() {
     });
     document.getElementById("totalAmountHeader").textContent = `Total Amount: ₹${total}`;
 }
+
+function paymentPage() {
+    window.location.href = '../payment/index.html';
+}
