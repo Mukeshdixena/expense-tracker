@@ -1,10 +1,34 @@
 document.addEventListener("DOMContentLoaded", initApp);
 
+const urlParams = new URLSearchParams(window.location.search);
+const orderId = urlParams.get("orderId");
+console.log("Order ID:", orderId);
+async function fetchPaymentStatus() {
+    if (orderId) {
+
+        const response = await axios.get(`http://localhost:3000/payment/paymentStatus/${orderId}`);
+
+        if (response.data.status === 200) {
+            let isPremiumMember = true;
+            const token = localStorage.getItem('token');
+            await axios.patch(`http://localhost:3000/api/postPremium`,
+                { isPremiumMember },
+                { headers: { "Authorization": token } }
+            );
+        }
+
+    }
+}
+fetchPaymentStatus();
+
+
+
 let editMode = false;
 let editId = null;
 
 async function initApp() {
     await fetchData();
+    await isPremiumMember();
     document.getElementById("myForm").addEventListener("submit", handleSubmit);
     document.getElementById("detailsList").addEventListener("click", handleListActions);
 }
@@ -21,6 +45,29 @@ async function fetchData() {
     } catch (error) {
         console.error("Error fetching data:", error);
     }
+}
+async function isPremiumMember() {
+
+    const token = localStorage.getItem('token');
+    const response = await axios.get("http://localhost:3000/api/getUserById", { headers: { "Authorization": token } });
+    console.log(response);
+    if (response.data.isPremiumMember) {
+        updatePremium();
+    } else {
+        console.log("not premium member")
+    }
+
+}
+function updatePremium() {
+
+    document.getElementById("membershipDiv").style.display = "none"; // Hide the button div
+    document.getElementById("welcomeDiv").style.display = "block";  // Show the welcome message
+
+}
+function logoutUser() {
+    // Perform logout actions (clear user data, redirect, etc.)
+    alert("You have been logged out.");
+    window.location.href = "../Login/signin.html"; // Redirect to login page
 }
 
 async function handleSubmit(event) {
