@@ -208,9 +208,9 @@ function updateLeaderboardUI(leaderboard) {
 
     leaderboard.forEach(entry => {
         const li = document.createElement("li");
-        li.innerHTML = `<span> - ${entry.user.username} - ${entry.totalAmount}</span>`;
+        li.innerHTML = `<span> - ${entry.username} - ${entry.totalAmount}</span>`;
 
-        if (entry.user.isPremiumMember) {
+        if (entry.isPremiumMember) {
             li.style.color = "gold"; // Highlight premium users
         }
 
