@@ -194,21 +194,9 @@ function paymentPage() {
 async function showLeaderBoad() {
     document.getElementById("LeaderBoadList").innerHTML = "";
     document.getElementById("showButton").style.display = "none";
-    const response = await axios.get("http://localhost:3000/api/getLeaderBoad");
-    const leaderboard = [];
-    leaderboard.length = 0;
+    const leaderboard = await axios.get("http://localhost:3000/api/getLeaderBoad");
 
-    // Collect all leaderboard entries
-    response.data.forEach(({ user, expenses }) => {
-        const totalAmount = expenses.reduce((total, item) => total + item.amount, 0);
-        leaderboard.push({ user, totalAmount });
-    });
-
-    // Sort the leaderboard (higher amounts first)
-    leaderboard.sort((a, b) => b.totalAmount - a.totalAmount);
-
-    // Re-render the leaderboard
-    updateLeaderboardUI(leaderboard);
+    updateLeaderboardUI(leaderboard.data);
 }
 
 function updateLeaderboardUI(leaderboard) {
