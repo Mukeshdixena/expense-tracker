@@ -7,8 +7,10 @@ async function fetchPaymentStatus() {
     if (orderId) {
 
         const response = await axios.get(`http://localhost:3000/payment/paymentStatus/${orderId}`);
-
-        if (response.data.status === 200) {
+        console.log(response);
+        console.log(response.data.data[0].payment_status);
+        let status = response.data.data[0].payment_status
+        if (status === 'SUCCESS') {
             let isPremiumMember = true;
             const token = localStorage.getItem('token');
             await axios.patch(`http://localhost:3000/api/postPremium`,
@@ -66,7 +68,7 @@ function updatePremium() {
 }
 function logoutUser() {
     // Perform logout actions (clear user data, redirect, etc.)
-    alert("You have been logged out.");
+    // alert("You have been logged out.");
     window.location.href = "../Login/signin.html"; // Redirect to login page
 }
 
@@ -116,6 +118,19 @@ function addToList(id, description, amount, category) {
         <button class="delete">Delete</button>`;
 
     document.getElementById("detailsList").appendChild(li);
+    updateTotalAmount();
+}
+function addToLeaderBoad(id, username, isPremiumMember) {
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+        <span> - ${username} - </span>`;
+    if (isPremiumMember) {
+        // li.style.backgroundColor = "silver"; // Example: gold background for premium members
+        // li.style.fontWeight = "bold";  // Example: bold font for premium members
+        li.style.color = "gold"; // Adjust text color for better contrast
+    }
+    document.getElementById("LeaderBoadList").appendChild(li);
     updateTotalAmount();
 }
 
@@ -168,4 +183,13 @@ function updateTotalAmount() {
 
 function paymentPage() {
     window.location.href = '../payment/index.html';
+}
+
+
+async function showLeaderBoad() {
+    const response = await axios.get("http://localhost:3000/api/getUser");
+    console.log(response)
+    response.data.forEach(({ id, username, isPremiumMember }) =>
+        addToLeaderBoad(id, username, isPremiumMember)
+    );
 }

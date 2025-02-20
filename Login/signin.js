@@ -12,7 +12,7 @@ async function signin() {
         password: currPassword
     });
     console.log(response);
-    alert(response.data.message);
+    // alert(response.data.message);
 
     if (response.data.success) {
         localStorage.setItem("token", response.data.token);

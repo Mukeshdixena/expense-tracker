@@ -7,103 +7,7 @@
     <title>Walcom Premium Expense Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to right, #1e3c72, #2a5298);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: white;
-        }
 
-        .container {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            width: 400px;
-            text-align: center;
-            color: #333;
-        }
-
-        h2 {
-            color: #007bff;
-        }
-
-        button {
-            background: linear-gradient(to right, #ff416c, #ff4b2b);
-            color: white;
-            border: none;
-            padding: 12px;
-            margin-top: 10px;
-            cursor: pointer;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: linear-gradient(to right, #ff4b2b, #ff416c);
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        label {
-            font-weight: bold;
-            text-align: left;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
-
-        #detailsList {
-            list-style: none;
-            padding: 0;
-            text-align: left;
-        }
-
-        #detailsList li {
-            background: #f9f9f9;
-            padding: 12px;
-            border: 1px solid #ddd;
-            margin-top: 6px;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .premium-banner {
-            background: #ffd700;
-            padding: 10px;
-            border-radius: 6px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        #totalAmountHeader {
-            margin-top: 15px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #28a745;
-        }
-    </style>
 </head>
 
 <body>
@@ -117,6 +21,9 @@
         <div id="welcomeDiv" style="display: none;">
             <h2>Welcome to Walcom Premium Membership!</h2>
             <p>Enjoy unlimited expense tracking, detailed analytics, and priority support.</p>
+            <button onclick="showLeaderBoad()">Show Leader Boad</button>
+            <h3 id="LeaderBoad" style="display: none;">Leader Boad</h3>
+            <ol id="LeaderBoadList"></ol>
         </div>
 
         <form id="myForm">

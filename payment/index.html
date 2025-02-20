@@ -23,7 +23,7 @@
             const responce = await axios.get("http://localhost:3000/service/createOrder");
             console.log(responce.data);
             let checkoutOptions = {
-                paymentSessionId: responce.data,
+                paymentSessionId: responce.data.paymentSessionId,
                 redirectTarget: "_self",
             };
             cashfree.checkout(checkoutOptions);

@@ -19,7 +19,7 @@ async function signup() {
         }
 
         await axios.post("http://localhost:3000/api/postUser", { username, email: currEmail, password });
-        alert('Signup successful!');
+        // alert('Signup successful!');
         window.location.href = '../Login/signin.html';
 
     } catch (error) {
