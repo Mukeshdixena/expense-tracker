@@ -93,6 +93,7 @@ async function handleSubmit(event) {
             );
             editMode = false;
             editId = null;
+            addToList(editId, description, amount, category);
         } else {
             const response = await axios.post("http://localhost:3000/api/postExpense",
                 { description, amount, category },
@@ -120,7 +121,6 @@ function addToList(id, description, amount, category) {
         <button class="delete">Delete</button>`;
 
     document.getElementById("detailsList").appendChild(li);
-    updateTotalAmount();
 }
 function addToLeaderBoad(user, expenses) {
 
@@ -147,10 +147,11 @@ async function handleListActions(event) {
     if (btn.classList.contains("delete")) {
         await deleteInfo(id);
         li.remove();
-        updateTotalAmount();
     } else if (btn.classList.contains("edit")) {
+
         editItem(li);
     }
+    updateTotalAmount();
 }
 
 async function deleteInfo(id) {
@@ -172,17 +173,16 @@ function editItem(li) {
 
     editMode = true;
     editId = li.dataset.id;
+    li.remove();
 }
 
-function updateTotalAmount() {
-    let total = 0;
-    document.querySelectorAll("#detailsList li").forEach(li => {
-        const amountText = li.querySelector("span").textContent.split(" - ")[1];
-        const amount = parseFloat(amountText.replace("₹", "").trim());
-        if (!isNaN(amount)) total += amount;
-    });
+async function updateTotalAmount() {
 
-    document.getElementById("totalAmountHeader").textContent = `Total Amount: ₹${total}`;
+    const token = localStorage.getItem('token');
+    const response = await axios.get("http://localhost:3000/api/getUserTotalAmount", { headers: { "Authorization": token } });
+    console.log(response.data.totalAmount);
+
+    document.getElementById("totalAmountHeader").textContent = `Total Amount: ₹${response.data.totalAmount}`;
 
 }
 
