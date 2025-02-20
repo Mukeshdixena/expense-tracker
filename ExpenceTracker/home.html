@@ -7,6 +7,85 @@
     <title>Walcom Premium Expense Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            display: inline-block;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            /* color: white; */
+            cursor: pointer;
+            margin: 5px 0;
+            color: black;
+            background-color: #eab676;
+        }
+
+        #membershipDiv button {
+            background-color: #28a745;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        #totalAmountHeader {
+            color: #007bff;
+        }
+
+        #welcomeDiv {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background: #f1f1f1;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
 
 </head>
 
@@ -21,7 +100,7 @@
         <div id="welcomeDiv" style="display: none;">
             <h2>Welcome to Walcom Premium Membership!</h2>
             <p>Enjoy unlimited expense tracking, detailed analytics, and priority support.</p>
-            <button onclick="showLeaderBoad()">Show Leader Boad</button>
+            <button id="showButton" onclick="showLeaderBoad()">Show Leader Boad</button>
             <h3 id="LeaderBoad" style="display: none;">Leader Boad</h3>
             <ol id="LeaderBoadList"></ol>
         </div>
@@ -44,7 +123,7 @@
                 <option value="Other">Other</option>
             </select>
 
-            <button type="submit">Add Expense</button>
+            <button type="submit" style="background: #007bff;">Add Expense</button>
         </form>
 
         <h3 id="totalAmountHeader">Total Amount: ₹0</h3>

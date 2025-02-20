@@ -80,6 +80,7 @@ async function handleSubmit(event) {
     const amount = parseFloat(form.amount.value.trim());
     const category = form.category.value;
 
+
     if (!description || isNaN(amount) || amount <= 0 || !category) {
         return alert("Please enter a valid description, amount, and category.");
     }
@@ -105,6 +106,7 @@ async function handleSubmit(event) {
     } catch (error) {
         console.error("Error submitting data:", error);
     }
+    showLeaderBoad();
 }
 
 function addToList(id, description, amount, category) {
@@ -120,18 +122,19 @@ function addToList(id, description, amount, category) {
     document.getElementById("detailsList").appendChild(li);
     updateTotalAmount();
 }
-function addToLeaderBoad(id, username, isPremiumMember) {
+function addToLeaderBoad(user, expenses) {
+
+    const totalAmount = expenses.reduce((total, item) => total + item.amount, 0);
 
     const li = document.createElement("li");
     li.innerHTML = `
-        <span> - ${username} - </span>`;
-    if (isPremiumMember) {
-        // li.style.backgroundColor = "silver"; // Example: gold background for premium members
-        // li.style.fontWeight = "bold";  // Example: bold font for premium members
+        <span> - ${user.username} - ${totalAmount}</span>`;
+    if (user.isPremiumMember) {
         li.style.color = "gold"; // Adjust text color for better contrast
     }
     document.getElementById("LeaderBoadList").appendChild(li);
-    updateTotalAmount();
+
+
 }
 
 async function handleListActions(event) {
@@ -178,7 +181,9 @@ function updateTotalAmount() {
         const amount = parseFloat(amountText.replace("₹", "").trim());
         if (!isNaN(amount)) total += amount;
     });
+
     document.getElementById("totalAmountHeader").textContent = `Total Amount: ₹${total}`;
+
 }
 
 function paymentPage() {
@@ -187,9 +192,42 @@ function paymentPage() {
 
 
 async function showLeaderBoad() {
-    const response = await axios.get("http://localhost:3000/api/getUser");
-    console.log(response)
-    response.data.forEach(({ id, username, isPremiumMember }) =>
-        addToLeaderBoad(id, username, isPremiumMember)
-    );
+    document.getElementById("LeaderBoadList").innerHTML = "";
+    document.getElementById("showButton").style.display = "none";
+    const response = await axios.get("http://localhost:3000/api/getLeaderBoad");
+    const leaderboard = [];
+    leaderboard.length = 0;
+
+    // Collect all leaderboard entries
+    response.data.forEach(({ user, expenses }) => {
+        const totalAmount = expenses.reduce((total, item) => total + item.amount, 0);
+        leaderboard.push({ user, totalAmount });
+    });
+
+    // Sort the leaderboard (higher amounts first)
+    leaderboard.sort((a, b) => b.totalAmount - a.totalAmount);
+
+    // Re-render the leaderboard
+    updateLeaderboardUI(leaderboard);
+}
+
+function updateLeaderboardUI(leaderboard) {
+    const leaderboardList = document.getElementById("LeaderBoadList");
+    leaderboardList.innerHTML = ""; // Clear existing list
+
+    // Append sorted items efficiently
+    const fragment = document.createDocumentFragment();
+
+    leaderboard.forEach(entry => {
+        const li = document.createElement("li");
+        li.innerHTML = `<span> - ${entry.user.username} - ${entry.totalAmount}</span>`;
+
+        if (entry.user.isPremiumMember) {
+            li.style.color = "gold"; // Highlight premium users
+        }
+
+        fragment.appendChild(li);
+    });
+
+    leaderboardList.appendChild(fragment); // Batch append to DOM
 }
