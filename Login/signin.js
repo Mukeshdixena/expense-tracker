@@ -12,10 +12,12 @@ async function signin() {
         password: currPassword
     });
     console.log(response);
-    // alert(response.data.message);
 
     if (response.data.success) {
         localStorage.setItem("token", response.data.token);
         window.location.href = '../ExpenceTracker/home.html';
+    } else {
+
+        alert(response.data.message);
     }
 }

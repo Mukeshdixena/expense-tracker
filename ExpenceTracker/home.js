@@ -1,29 +1,29 @@
 document.addEventListener("DOMContentLoaded", initApp);
 
-const urlParams = new URLSearchParams(window.location.search);
-const orderId = urlParams.get("orderId");
-console.log("Order ID:", orderId);
-async function fetchPaymentStatus() {
-    if (orderId) {
 
+
+(async function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get("orderId");
+    if (orderId) {
+        await fetchPaymentStatus(orderId);
+    }
+})();
+
+async function fetchPaymentStatus(orderId) {
+    try {
         const response = await axios.get(`http://localhost:3000/payment/paymentStatus/${orderId}`);
         console.log(response);
-        console.log(response.data.data[0].payment_status);
-        let status = response.data.data[0].payment_status
-        if (status === 'SUCCESS') {
-            let isPremiumMember = true;
-            const token = localStorage.getItem('token');
-            await axios.patch(`http://localhost:3000/api/postPremium`,
-                { isPremiumMember },
-                { headers: { "Authorization": token } }
-            );
-        }
+        let status = response.data.data[0]?.payment_status;
 
+        if (status === 'SUCCESS') {
+            const token = localStorage.getItem('token');
+            await axios.patch(`http://localhost:3000/api/postPremium`, { isPremiumMember: true }, { headers: { "Authorization": token } });
+        }
+    } catch (error) {
+        console.error("Error fetching payment status:", error);
     }
 }
-fetchPaymentStatus();
-
-
 
 let editMode = false;
 let editId = null;
@@ -39,47 +39,47 @@ async function fetchData() {
     try {
         const token = localStorage.getItem('token');
         const response = await axios.get("http://localhost:3000/api/getExpense", { headers: { "Authorization": token } });
-        document.getElementById("detailsList").innerHTML = ""; // Clear existing list
-        response.data.forEach(({ id, description, amount, category }) =>
-            addToList(id, description, amount, category)
-        );
+        document.getElementById("detailsList").innerHTML = "";
+
+        response.data.forEach(({ id, description, amount, category }) => addToList(id, description, amount, category));
         updateTotalAmount();
     } catch (error) {
         console.error("Error fetching data:", error);
     }
 }
+
 async function isPremiumMember() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get("http://localhost:3000/api/getUserById", { headers: { "Authorization": token } });
 
-    const token = localStorage.getItem('token');
-    const response = await axios.get("http://localhost:3000/api/getUserById", { headers: { "Authorization": token } });
-    console.log(response);
-    if (response.data.isPremiumMember) {
-        updatePremium();
-    } else {
-        console.log("not premium member")
+        if (response.data.isPremiumMember) {
+            updatePremium();
+        } else {
+            console.log("Not a premium member");
+        }
+    } catch (error) {
+        console.error("Error checking premium status:", error);
     }
-
 }
+
 function updatePremium() {
-
-    document.getElementById("membershipDiv").style.display = "none"; // Hide the button div
-    document.getElementById("welcomeDiv").style.display = "block";  // Show the welcome message
-
+    document.getElementById("membershipDiv").style.display = "none";
+    document.getElementById("welcomeDiv").style.display = "block";
 }
+
 function logoutUser() {
-    // Perform logout actions (clear user data, redirect, etc.)
-    // alert("You have been logged out.");
-    window.location.href = "../Login/signin.html"; // Redirect to login page
+    window.location.href = "../Login/signin.html";
 }
 
 async function handleSubmit(event) {
     event.preventDefault();
-    const token = localStorage.getItem('token');
     const form = event.target;
+    const token = localStorage.getItem('token');
+
     const description = form.description.value.trim();
     const amount = parseFloat(form.amount.value.trim());
     const category = form.category.value;
-
 
     if (!description || isNaN(amount) || amount <= 0 || !category) {
         return alert("Please enter a valid description, amount, and category.");
@@ -107,6 +107,7 @@ async function handleSubmit(event) {
     } catch (error) {
         console.error("Error submitting data:", error);
     }
+
     showLeaderBoad();
 }
 
@@ -122,20 +123,6 @@ function addToList(id, description, amount, category) {
 
     document.getElementById("detailsList").appendChild(li);
 }
-function addToLeaderBoad(user, expenses) {
-
-    const totalAmount = expenses.reduce((total, item) => total + item.amount, 0);
-
-    const li = document.createElement("li");
-    li.innerHTML = `
-        <span> - ${user.username} - ${totalAmount}</span>`;
-    if (user.isPremiumMember) {
-        li.style.color = "gold"; // Adjust text color for better contrast
-    }
-    document.getElementById("LeaderBoadList").appendChild(li);
-
-
-}
 
 async function handleListActions(event) {
     const btn = event.target;
@@ -148,15 +135,14 @@ async function handleListActions(event) {
         await deleteInfo(id);
         li.remove();
     } else if (btn.classList.contains("edit")) {
-
         editItem(li);
     }
     updateTotalAmount();
 }
 
 async function deleteInfo(id) {
-    const token = localStorage.getItem('token');
     try {
+        const token = localStorage.getItem('token');
         await axios.delete(`http://localhost:3000/api/deleteExpense/${id}`, { headers: { "Authorization": token } });
     } catch (error) {
         console.error("Error deleting item:", error);
@@ -168,7 +154,7 @@ function editItem(li) {
     const form = document.getElementById("myForm");
 
     form.description.value = textParts[0];
-    form.amount.value = textParts[1].replace("₹", ""); // Remove ₹ symbol
+    form.amount.value = textParts[1].replace("₹", "");
     form.category.value = textParts[2];
 
     editMode = true;
@@ -177,33 +163,36 @@ function editItem(li) {
 }
 
 async function updateTotalAmount() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get("http://localhost:3000/api/getUserTotalAmount", { headers: { "Authorization": token } });
 
-    const token = localStorage.getItem('token');
-    const response = await axios.get("http://localhost:3000/api/getUserTotalAmount", { headers: { "Authorization": token } });
-    console.log(response.data.totalAmount);
-
-    document.getElementById("totalAmountHeader").textContent = `Total Amount: ₹${response.data.totalAmount}`;
-
+        document.getElementById("totalAmountHeader").textContent = `Total Amount: ₹${response.data.totalAmount}`;
+    } catch (error) {
+        console.error("Error fetching total amount:", error);
+    }
 }
 
 function paymentPage() {
     window.location.href = '../payment/index.html';
 }
 
-
 async function showLeaderBoad() {
     document.getElementById("LeaderBoadList").innerHTML = "";
     document.getElementById("showButton").style.display = "none";
-    const leaderboard = await axios.get("http://localhost:3000/api/getLeaderBoad");
 
-    updateLeaderboardUI(leaderboard.data);
+    try {
+        const leaderboard = await axios.get("http://localhost:3000/api/getLeaderBoad");
+        updateLeaderboardUI(leaderboard.data);
+    } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+    }
 }
 
 function updateLeaderboardUI(leaderboard) {
     const leaderboardList = document.getElementById("LeaderBoadList");
-    leaderboardList.innerHTML = ""; // Clear existing list
+    leaderboardList.innerHTML = "";
 
-    // Append sorted items efficiently
     const fragment = document.createDocumentFragment();
 
     leaderboard.forEach(entry => {
@@ -211,11 +200,11 @@ function updateLeaderboardUI(leaderboard) {
         li.innerHTML = `<span> - ${entry.username} - ${entry.totalAmount}</span>`;
 
         if (entry.isPremiumMember) {
-            li.style.color = "gold"; // Highlight premium users
+            li.style.color = "gold";
         }
 
         fragment.appendChild(li);
     });
 
-    leaderboardList.appendChild(fragment); // Batch append to DOM
+    leaderboardList.appendChild(fragment);
 }
