@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", initApp);
 
-
-
 (async function () {
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get("orderId");

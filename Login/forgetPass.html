@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forget Password</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #ccc;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Forget Password</h2>
+        <p id="stepText">Enter your email to receive an OTP</p>
+
+        <div id="emailStep">
+            <input type="email" id="email" placeholder="Enter your email" required>
+            <button id="sendOtpBtn">Send OTP</button>
+        </div>
+
+        <div id="otpStep" class="hidden">
+            <input type="number" id="otp" placeholder="Enter OTP" required>
+            <button id="verifyOtpBtn">Verify OTP</button>
+        </div>
+
+        <p id="errorMessage" style="color: red;"></p>
+    </div>
+
+    <script>
+        document.getElementById("sendOtpBtn").addEventListener("click", async function () {
+            const emailId = document.getElementById("email").value;
+            const errorMessage = document.getElementById("errorMessage");
+
+            if (!emailId) {
+                errorMessage.textContent = "Please enter your email.";
+                return;
+            }
+
+            try {
+                const response = await axios.post("http://localhost:3000/forgetPassword/postOtpMail", {
+                    email: emailId,
+                });
+
+                if (response.data.sent) {
+                    document.getElementById("emailStep").classList.add("hidden");
+                    document.getElementById("otpStep").classList.remove("hidden");
+                    document.getElementById("stepText").textContent = "Enter the OTP sent to your email";
+                } else {
+
+                    errorMessage.textContent = response.data.message;
+                }
+            } catch (error) {
+                errorMessage.textContent = "Failed to send OTP. Try again.";
+                console.error("Error:", error.response?.data || error);
+            }
+        });
+
+        document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
+            const emailId = document.getElementById("email").value;
+            const otp = document.getElementById("otp").value;
+            const errorMessage = document.getElementById("errorMessage");
+
+            if (!otp) {
+                errorMessage.textContent = "Please enter the OTP.";
+                return;
+            }
+
+            try {
+                const verifyResponse = await axios.post("http://localhost:3000/forgetPassword/verifyOtp", {
+                    email: emailId,
+                    otp: otp,
+                });
+
+                if (verifyResponse.data.result) {
+                    alert("OTP Verified! You can now reset your password.");
+
+                    window.location.href = `/Login/reset-password.html?email=${encodeURIComponent(emailId)}`;
+                }
+            } catch (error) {
+                errorMessage.textContent = "Invalid OTP. Try again.";
+                console.error("Error verifying OTP:", error.response?.data || error);
+            }
+        });
+    </script>
+
+</body>
+
+</html>
