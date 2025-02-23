@@ -7,7 +7,7 @@ async function signin() {
         return;
     }
 
-    const response = await axios.post("http://localhost:3000/api/signin", {
+    const response = await axios.post(`${CONFIG.API_BASE_URL}/api/signin`, {
         email: currEmail,
         password: currPassword
     });
@@ -15,7 +15,7 @@ async function signin() {
 
     if (response.data.success) {
         localStorage.setItem("token", response.data.token);
-        window.location.href = '../ExpenceTracker/home.html';
+        window.location.href = '../ExpenceTracker/ExpenceTracker.html';
     } else {
 
         alert(response.data.message);

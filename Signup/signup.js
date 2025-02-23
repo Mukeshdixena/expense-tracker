@@ -9,7 +9,7 @@ async function signup() {
     }
 
     try {
-        const response = await axios.get("http://localhost:3000/api/getUser");
+        const response = await axios.get(`${CONFIG.API_BASE_URL}/api/getUser`);
 
         const emailExists = response.data.some(({ email }) => email === currEmail);
 
@@ -18,9 +18,9 @@ async function signup() {
             return;
         }
 
-        await axios.post("http://localhost:3000/api/postUser", { username, email: currEmail, password });
+        await axios.post(`${CONFIG.API_BASE_URL}/api/postUser`, { username, email: currEmail, password });
         // alert('Signup successful!');
-        window.location.href = '../Login/signin.html';
+        window.location.href = '../index.html';
 
     } catch (error) {
         console.error('Error during signup:', error);

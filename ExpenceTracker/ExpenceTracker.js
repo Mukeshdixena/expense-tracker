@@ -10,13 +10,13 @@ document.addEventListener("DOMContentLoaded", initApp);
 
 async function fetchPaymentStatus(orderId) {
     try {
-        const response = await axios.get(`http://localhost:3000/payment/paymentStatus/${orderId}`);
+        const response = await axios.get(`${CONFIG.API_BASE_URL}/payment/paymentStatus/${orderId}`);
         console.log(response);
         let status = response.data.data[0]?.payment_status;
 
         if (status === 'SUCCESS') {
             const token = localStorage.getItem('token');
-            await axios.patch(`http://localhost:3000/api/postPremium`, { isPremiumMember: true }, { headers: { "Authorization": token } });
+            await axios.patch(`${CONFIG.API_BASE_URL}/api/postPremium`, { isPremiumMember: true }, { headers: { "Authorization": token } });
         }
     } catch (error) {
         console.error("Error fetching payment status:", error);
@@ -36,7 +36,7 @@ async function initApp() {
 async function fetchData() {
     try {
         const token = localStorage.getItem('token');
-        const response = await axios.get("http://localhost:3000/api/getExpense", { headers: { "Authorization": token } });
+        const response = await axios.get(`${CONFIG.API_BASE_URL}/api/getExpense`, { headers: { "Authorization": token } });
         document.getElementById("detailsList").innerHTML = "";
 
         response.data.forEach(({ id, description, amount, category }) => addToList(id, description, amount, category));
@@ -49,7 +49,7 @@ async function fetchData() {
 async function isPremiumMember() {
     try {
         const token = localStorage.getItem('token');
-        const response = await axios.get("http://localhost:3000/api/getUserById", { headers: { "Authorization": token } });
+        const response = await axios.get(`${CONFIG.API_BASE_URL}/api/getUserById`, { headers: { "Authorization": token } });
 
         if (response.data.isPremiumMember) {
             updatePremium();
@@ -67,7 +67,7 @@ function updatePremium() {
 }
 
 function logoutUser() {
-    window.location.href = "../Login/signin.html";
+    window.location.href = "../index.html";
 }
 
 async function handleSubmit(event) {
@@ -85,7 +85,7 @@ async function handleSubmit(event) {
 
     try {
         if (editMode) {
-            await axios.patch(`http://localhost:3000/api/editExpense/${editId}`,
+            await axios.patch(`${CONFIG.API_BASE_URL}/api/editExpense/${editId}`,
                 { description, amount, category },
                 { headers: { "Authorization": token } }
             );
@@ -93,7 +93,7 @@ async function handleSubmit(event) {
             editId = null;
             addToList(editId, description, amount, category);
         } else {
-            const response = await axios.post("http://localhost:3000/api/postExpense",
+            const response = await axios.post(`${CONFIG.API_BASE_URL}/api/postExpense`,
                 { description, amount, category },
                 { headers: { "Authorization": token } }
             );
@@ -141,7 +141,7 @@ async function handleListActions(event) {
 async function deleteInfo(id) {
     try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:3000/api/deleteExpense/${id}`, { headers: { "Authorization": token } });
+        await axios.delete(`${CONFIG.API_BASE_URL}/api/deleteExpense/${id}`, { headers: { "Authorization": token } });
     } catch (error) {
         console.error("Error deleting item:", error);
     }
@@ -163,7 +163,7 @@ function editItem(li) {
 async function updateTotalAmount() {
     try {
         const token = localStorage.getItem('token');
-        const response = await axios.get("http://localhost:3000/api/getUserTotalAmount", { headers: { "Authorization": token } });
+        const response = await axios.get(`${CONFIG.API_BASE_URL}/api/getUserTotalAmount`, { headers: { "Authorization": token } });
 
         document.getElementById("totalAmountHeader").textContent = `Total Amount: ₹${response.data.totalAmount}`;
     } catch (error) {
@@ -172,7 +172,7 @@ async function updateTotalAmount() {
 }
 
 function paymentPage() {
-    window.location.href = '../payment/index.html';
+    window.location.href = '../payment/payment.html';
 }
 
 async function showLeaderBoad() {
@@ -180,7 +180,7 @@ async function showLeaderBoad() {
     document.getElementById("showButton").style.display = "none";
 
     try {
-        const leaderboard = await axios.get("http://localhost:3000/api/getLeaderBoad");
+        const leaderboard = await axios.get(`${CONFIG.API_BASE_URL}/api/getLeaderBoad`);
         updateLeaderboardUI(leaderboard.data);
     } catch (error) {
         console.error("Error fetching leaderboard:", error);

@@ -7,6 +7,8 @@
     <title>Cashfree Checkout Integration</title>
     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../config.js"></script>
+
 
 </head>
 
@@ -20,7 +22,7 @@
             mode: "sandbox",
         });
         document.getElementById("renderBtn").addEventListener("click", async () => {
-            const responce = await axios.get("http://localhost:3000/service/createOrder");
+            const responce = await axios.get(`${CONFIG.API_BASE_URL}/service/createOrder`);
             console.log(responce.data);
             let checkoutOptions = {
                 paymentSessionId: responce.data.paymentSessionId,
