@@ -28,6 +28,7 @@ let editId = null;
 
 async function initApp() {
     await fetchData();
+    await fetchDownloadList();
     await isPremiumMember();
     document.getElementById("myForm").addEventListener("submit", handleSubmit);
     document.getElementById("detailsList").addEventListener("click", handleListActions);
@@ -41,6 +42,17 @@ async function fetchData() {
 
         response.data.forEach(({ id, description, amount, category }) => addToList(id, description, amount, category));
         updateTotalAmount();
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+async function fetchDownloadList() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${CONFIG.API_BASE_URL}/api/getExpenseDownload`, { headers: { "Authorization": token } });
+        document.getElementById("DownloadList").innerHTML = "";
+
+        response.data.forEach(({ id, fileUrl }) => addToDownloadList(id, fileUrl));
     } catch (error) {
         console.error("Error fetching data:", error);
     }
@@ -106,7 +118,6 @@ async function handleSubmit(event) {
         console.error("Error submitting data:", error);
     }
 
-    showLeaderBoad();
 }
 
 function addToList(id, description, amount, category) {
@@ -121,6 +132,44 @@ function addToList(id, description, amount, category) {
 
     document.getElementById("detailsList").appendChild(li);
 }
+function addToDownloadList(id, fileUrl) {
+    const li = document.createElement("li");
+    li.dataset.id = id;
+
+    const fileName = fileUrl.split('/').pop();
+
+    // Create file link
+    const fileLink = document.createElement("a");
+    fileLink.href = fileUrl;
+    fileLink.target = "_blank";
+    fileLink.download = fileName;
+    fileLink.textContent = fileName + "  ";
+
+    // Create delete button
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.classList.add("delete");
+    deleteButton.addEventListener("click", () => deleteDownload(id, li));
+
+    // Append elements
+    li.appendChild(fileLink);
+    li.appendChild(deleteButton);
+    document.getElementById("DownloadList").appendChild(li);
+}
+
+// Separate function for handling delete action
+async function deleteDownload(id, li) {
+    try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`${CONFIG.API_BASE_URL}/api/deleteExpenseDownload/${id}`, {
+            headers: { "Authorization": token }
+        });
+        li.remove();
+    } catch (error) {
+        console.error("Error deleting download:", error);
+    }
+}
+
 
 async function handleListActions(event) {
     const btn = event.target;
@@ -186,6 +235,24 @@ async function showLeaderBoad() {
         console.error("Error fetching leaderboard:", error);
     }
 }
+async function downloadExpence() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${CONFIG.API_BASE_URL}/api/getExpenseFile`, {
+            headers: { "Authorization": token }
+        });
+
+        if (response.data && response.data.fileUrl) {
+            window.open(response.data.fileUrl, "_blank"); // Open file in a new tab
+        } else {
+            console.error("File URL not found in response:", response);
+        }
+        await fetchDownloadList();
+    } catch (error) {
+        console.error("Error fetching expense file:", error);
+    }
+}
+
 
 function updateLeaderboardUI(leaderboard) {
     const leaderboardList = document.getElementById("LeaderBoadList");

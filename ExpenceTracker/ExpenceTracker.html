@@ -85,6 +85,10 @@
             padding: 10px;
             border-radius: 5px;
         }
+
+        a {
+            text-decoration: none;
+        }
     </style>
 
 </head>
@@ -101,8 +105,12 @@
             <h2>Welcome to Walcom Premium Membership!</h2>
             <p>Enjoy unlimited expense tracking, detailed analytics, and priority support.</p>
             <button id="showButton" onclick="showLeaderBoad()">Show Leader Boad</button>
+            <button id="downloadExpence" onclick="downloadExpence()">Download Expence</button>
+
             <h3 id="LeaderBoad" style="display: none;">Leader Boad</h3>
             <ol id="LeaderBoadList"></ol>
+            <h3>Download History</h3>
+            <ul id="DownloadList"></ul>
         </div>
 
         <form id="myForm">
