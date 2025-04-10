@@ -39,8 +39,9 @@ async function fetchData() {
         const token = localStorage.getItem('token');
         const response = await axios.get(`${CONFIG.API_BASE_URL}/api/getExpense`, { headers: { "Authorization": token } });
         document.getElementById("detailsList").innerHTML = "";
+        console.log(response.data);
 
-        response.data.forEach(({ id, description, amount, category }) => addToList(id, description, amount, category));
+        response.data.forEach(({ _id, description, amount, category }) => addToList(_id, description, amount, category));
         updateTotalAmount();
     } catch (error) {
         console.error("Error fetching data:", error);
@@ -52,7 +53,7 @@ async function fetchDownloadList() {
         const response = await axios.get(`${CONFIG.API_BASE_URL}/api/getExpenseDownload`, { headers: { "Authorization": token } });
         document.getElementById("DownloadList").innerHTML = "";
 
-        response.data.forEach(({ id, fileUrl }) => addToDownloadList(id, fileUrl));
+        response.data.forEach(({ _id, fileUrl }) => addToDownloadList(_id, fileUrl));
     } catch (error) {
         console.error("Error fetching data:", error);
     }
@@ -109,7 +110,7 @@ async function handleSubmit(event) {
                 { description, amount, category },
                 { headers: { "Authorization": token } }
             );
-            addToList(response.data.id, description, amount, category);
+            addToList(response.data._id, description, amount, category);
         }
 
         form.reset();
@@ -243,7 +244,7 @@ async function downloadExpence() {
         });
 
         if (response.data && response.data.fileUrl) {
-            window.open(response.data.fileUrl, "_blank"); // Open file in a new tab
+            window.open(response.data.fileUrl, "_blank");
         } else {
             console.error("File URL not found in response:", response);
         }
